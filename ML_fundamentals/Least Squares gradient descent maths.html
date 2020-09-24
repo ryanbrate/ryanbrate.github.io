@@ -1,0 +1,300 @@
+<html>
+<head>
+    <link rel="Stylesheet" type="text/css" href="style.css"/>
+    <title>Least Squares gradient descent maths</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <!-- referencing local mathjax install, from :h vimwiki /template -->
+    <!-- <script type="text/javascript" src="/home/ry/node_modules/mathjax/es5/tex-chtml.js?config=TeX-AMS-MML_HTMLorMML"></script> -->
+
+    <!-- for online pushed -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+</head>
+<body>
+    <!-- <a href="../../index.html">Index</a> | -->
+    <!-- <a href="../../tag index.html">Tags</a> | -->
+    <!-- <a href="../../diary/diary.html">Diary</a> | -->
+    <hr>
+    <div class="content">
+    
+<blockquote>
+note: all vectors, column vectors by default
+</blockquote>
+    
+<div id="Least squares regression (with regularisation) gradient descent"><h1 id="Least squares regression (with regularisation) gradient descent" class="header"><a href="#Least squares regression (with regularisation) gradient descent">Least squares regression (with regularisation) gradient descent</a></h1></div>
+<blockquote>
+algebra behind gradient descent expression:
+</blockquote>
+    
+<ul>
+<li>
+\(\vec{w}_{j+1} := \vec{w}_{j+1} - \alpha \frac{dL}{d\vec{w}} \)
+
+<li>
+\(b_{j+1} := b_{j+1} - \alpha \frac{dL}{db} \)
+
+</ul>
+   
+
+<div id="Least squares regression (with regularisation) gradient descent-Loss"><h2 id="Loss" class="header"><a href="#Least squares regression (with regularisation) gradient descent-Loss">Loss</a></h2></div>
+<blockquote>
+Loss = L = \( \sum_i \frac{1}{2n}[(h(\vec{x}_i) - y_i)^2 + \lambda \sum_k w_k^2] \), where \(\vec{x}_i\) column vector of features for data point,i. 
+</blockquote>
+    
+<div id="Least squares regression (with regularisation) gradient descent-dL/dW"><h2 id="dL/dW" class="header"><a href="#Least squares regression (with regularisation) gradient descent-dL/dW">dL/dW</a></h2></div>
+<blockquote>
+by the law of linearity, the differntial can be broken down into sub-differentials
+</blockquote>
+
+<p>
+\( dL/d\vec{w} = \frac{1}{2n}[\frac{d}{d\vec{w}} \sum_i (h(\vec{x}_i) - y_i)^2 + \frac{d}{d\vec{w}}\lambda w^T.w ]\)
+</p>
+
+<p>
+Considering these two parts separately:
+</p>
+
+<ul>
+<li>
+2nd part: \(\frac{d}{d\vec{w}}\lambda w^T.w = 2\lambda\vec{w}\)
+
+<li>
+1st part, breaking down further according to law of linearity:
+
+</ul>
+
+<p>
+\(\frac{d}{d\vec{w}} \sum_i (h(\vec{x}_i) - y_i)^2 = \sum_i \frac{d}{d\vec{w}} (h(\vec{x}_i) - y_i)^2\)
+</p>
+    
+    
+<p>
+Considering  \(\frac{d}{d\vec{w}} (h(\vec{x}_i) - y_i)^2\) wrt. a single point \(\vec{x}_i\), \(y_i\) <span id="Least squares regression (with regularisation) gradient descent-dL/dW-as a (pseudo) computational graph:"></span><strong id="as a (pseudo) computational graph:">as a (pseudo) computational graph:</strong>
+</p>
+
+
+<table>
+<tr>
+<th>
+forward pass
+</th>
+<th>
+backwards pass
+</th>
+</tr>
+<tr>
+<th>
+&nbsp;
+</th>
+<th>
+&nbsp;
+</th>
+</tr>
+<tr>
+<td>
+\(\vec{w}\)
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+&nbsp;
+</td>
+<td>
+\(\frac{dh}{d\vec{w}} = \vec{x}_i\)
+</td>
+</tr>
+<tr>
+<td>
+&nbsp;
+</td>
+<td>
+(vector)
+</td>
+</tr>
+<tr>
+<td>
+\(h = \vec{x}_i^T.\vec{w} + b\)
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+(scalar)
+</td>
+<td>
+\(\frac{dL}{dh} = -2(y_i - h)\)
+</td>
+</tr>
+<tr>
+<td>
+&nbsp;
+</td>
+<td>
+(scalar)
+</td>
+</tr>
+<tr>
+<td>
+\(L = (y_i - h(\vec{x}_i))^2\)
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+(scalar)
+</td>
+<td>
+\(\frac{dL}{dL} = 1\)
+</td>
+</tr>
+<tr>
+<td>
+&nbsp;
+</td>
+<td>
+(scalar)
+</td>
+</tr>
+</table>
+            
+<p>
+Thus, 
+</p>
+<blockquote>
+\(dL/d\vec{w} = \frac{1}{2n}[\sum_i -2(y_i - h(x_i)) . \vec{x}_i + 2\lambda w] = \frac{1}{n} [\sum_i (\vec{x}_i^T.\vec{w} - y_i)^T . \vec{x}_i + \lambda\vec{w}]\) 
+</blockquote>
+    
+    
+<p>
+<span id="Least squares regression (with regularisation) gradient descent-dL/dW-This summation can be instead written as:"></span><strong id="This summation can be instead written as:">This summation can be instead written as:</strong>
+</p>
+<blockquote>
+\(dL/ d\vec{w} = \frac{1}{n}[X^T . (X\vec{w}-y) + \lambda\vec{w}]\) , where X is (n, features), y is (n,1) and d(Loss)/ d\vec{w} = a column vector gradients wrt. each feature weight.
+</blockquote>
+    
+    
+<div id="Least squares regression (with regularisation) gradient descent-dL/db"><h2 id="dL/db" class="header"><a href="#Least squares regression (with regularisation) gradient descent-dL/db">dL/db</a></h2></div>
+<blockquote>
+\( dL/db = \frac{1}{2n}\frac{d}{db} \sum_i (h(\vec{x}_i) - y_i)^2 = \frac{1}{2n} \sum_i \frac{d}{db} (h(\vec{x}_i) - y_i)^2\)
+</blockquote>
+    
+<p>
+Note: There is no regularisation component since, <span id="Least squares regression (with regularisation) gradient descent-dL/db-regularisation is traditionally not applied to bias."></span><strong id="regularisation is traditionally not applied to bias.">regularisation is traditionally not applied to bias.</strong>
+</p>
+
+<p>
+Considering the loss, \(\frac{d}{db} (h(\vec{x}_i) - y_i)^2\), i.e., wrt. a single point x_i, <span id="Least squares regression (with regularisation) gradient descent-dL/db-as a (pseudo) computational graph"></span><strong id="as a (pseudo) computational graph">as a (pseudo) computational graph</strong>:
+</p>
+
+<table>
+<tr>
+<th>
+forward pass
+</th>
+<th>
+backwards pass
+</th>
+</tr>
+<tr>
+<th>
+&nbsp;
+</th>
+<th>
+&nbsp;
+</th>
+</tr>
+<tr>
+<td>
+b
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+&nbsp;
+</td>
+<td>
+\(\frac{dh}{db} = 1\)
+</td>
+</tr>
+<tr>
+<td>
+\(h = \vec{x}_i.\vec{w} + b\)
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+&nbsp;
+</td>
+<td>
+\(\frac{dL}{dh} = -2(y_i - h)\)
+</td>
+</tr>
+<tr>
+<td>
+\(L = (y_i - h)^2\)
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+&nbsp;
+</td>
+<td>
+\(\frac{dL}{dL} = 1\)
+</td>
+</tr>
+<tr>
+<td>
+&nbsp;
+</td>
+<td>
+:w
+</td>
+</tr>
+<tr>
+<td>
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+</table>
+<p>
+<em>all values scalar</em>
+</p>
+
+<p>
+Thus, 
+</p>
+<blockquote>
+dL/db = \(\frac{1}{2n} \sum_i -2(y_i - h(\vec{x_i}))\) = \(\frac{1}{n} \sum_i \vec{x}_i^T.\vec{w} - y_i\)
+</blockquote>
+    
+<p>
+<span id="Least squares regression (with regularisation) gradient descent-dL/db-This summation can be instead written as:"></span><strong id="This summation can be instead written as:">This summation can be instead written as:</strong>
+</p>
+<blockquote>
+dL/db = \(\frac{1}{n} sum(X.\vec{w} - y)\)
+</blockquote>
+
+    </div>
+</body>
+</html>
