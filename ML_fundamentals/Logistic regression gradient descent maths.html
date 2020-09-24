@@ -1,0 +1,204 @@
+<html>
+<head>
+    <link rel="Stylesheet" type="text/css" href="../style.css"/>
+    <title>Logistic regression gradient descent maths</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <!-- referencing local mathjax install, from :h vimwiki /template -->
+    <!-- <script type="text/javascript" src="/home/ry/node_modules/mathjax/es5/tex-chtml.js?config=TeX-AMS-MML_HTMLorMML"></script> -->
+
+    <!-- for online pushed -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+</head>
+<body>
+    <!-- <a href="../../index.html">Index</a> | -->
+    <!-- <a href="../../tag index.html">Tags</a> | -->
+    <!-- <a href="../../diary/diary.html">Diary</a> | -->
+    <hr>
+    <div class="content">
+    
+<div id="Logistic regression gradient descent maths"><h1 id="Logistic regression gradient descent maths" class="header"><a href="#Logistic regression gradient descent maths">Logistic regression gradient descent maths</a></h1></div>
+<blockquote>
+Cross entropy = \( -p . \log (q)  \), Where p and q are probability distributions, wrt ground truth and model predictions, respectively.
+</blockquote>
+<blockquote>
+We use \(log\), rather than \(log_2\) for ease of use in calculus.
+</blockquote>
+    
+
+<p>
+e.g., in binary cross entropy:
+</p>
+    
+<ul>
+<li>
+p =  ground_truth = [1 0], i.e. [p(label==0), p(label==1)]
+
+<li>
+q = prediction = [0.9 0.1], i.e. [p(label==0), p(label==1)]
+
+</ul>
+
+<div id="Logistic regression gradient descent maths-BCE"><h2 id="BCE" class="header"><a href="#Logistic regression gradient descent maths-BCE">BCE</a></h2></div>
+
+<p>
+Expanding, \(-p.\log(q) = p[0] \times \log(q[0]) + p[1] \times \log(q[1])\) , however we know p[0] + p[1] = 1 and q[0] + q[1] = 1:
+</p>
+
+<p>
+Therefore, \(p[1] \times log(q[1]) + (1 - p[1]) \times log(1 - q[1])\)
+</p>
+
+<p>
+By selecting labels 1 and 0, and denoting sigmoid(logit) = p(label==1) = q[1], we can further write this as:
+</p>
+<blockquote>
+L = \(\sum_i label_i \times \log{S_i} + (1 - label_i) \times \log(1-S_i)\), 
+</blockquote>
+<blockquote>
+where, \(s_i = 1 / (1 + e-(h(\vec{x}_i))\)
+</blockquote>
+<blockquote>
+and, \(h(x_i) = \vec{x}_i.^T.\vec{w} + b\)
+</blockquote>
+    
+<div id="Logistic regression gradient descent maths-dL/dW"><h2 id="dL/dW" class="header"><a href="#Logistic regression gradient descent maths-dL/dW">dL/dW</a></h2></div>
+
+<p>
+By the law of linearity
+</p>
+
+<p>
+\(\frac{dL}{d\vec{w}} = \sum_i \frac{d}{dw} [label_i \times \log{S_i} + (1 - label_i) \times \log(1-S_i)]\)
+</p>
+
+
+<p>
+Thus, considering the loss associated with data point i, (x_i, label_i), as s pseudo computational graph
+</p>
+
+
+<table>
+<tr>
+<th>
+forward pass
+</th>
+<th>
+backward pass
+</th>
+</tr>
+<tr>
+<td>
+W
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+(vector)
+</td>
+<td>
+\(\frac{dh}{d\vec{w}} = \vec{x}_i\)
+</td>
+</tr>
+<tr>
+<td>
+&nbsp;
+</td>
+<td>
+(vector)
+</td>
+</tr>
+<tr>
+<td>
+h = \(\vec{x}_i^T.\vec{w} + b\)
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+(scalar)
+</td>
+<td>
+\(\frac{dS}{dh} = e^{-h}(1 + e^{-h})^{-2}\) = \(s_i(1-s_i)\)
+</td>
+</tr>
+<tr>
+<td>
+&nbsp;
+</td>
+<td>
+(scalar)
+</td>
+</tr>
+<tr>
+<td>
+S = (1 + e(-h))^-1
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+(scalar)
+</td>
+<td>
+\(\frac{dL}{dS} = -\frac{\text{label}_i}{S} + \frac{(1-label_i)}{1 - S}\)
+</td>
+</tr>
+<tr>
+<td>
+&nbsp;
+</td>
+<td>
+(scalar)
+</td>
+</tr>
+<tr>
+<td>
+L = \(-\text{label}_i \times \log S - (1 - \text{label}_i) \times \log (1 - S)\)
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+(scalar)
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+</table>
+
+
+<p>
+Thus, 
+</p>
+<blockquote>
+\(\frac{dL}{d\vec{w}} = \sum_i x_i \times s_i(1-s_i) *  (\frac{1-label_i}{1 - S} - \frac{label_i}{S_i})\)
+</blockquote>
+    
+<div id="Logistic regression gradient descent maths-dL/db"><h2 id="dL/db" class="header"><a href="#Logistic regression gradient descent maths-dL/db">dL/db</a></h2></div>
+<blockquote>
+By inspection, as per dL/d\vec{w}, but with dh/db instead of dh/d\vec{w} in the back-prop. \(dh/db = 1\)
+</blockquote>
+    
+<p>
+Thus, 
+</p>
+<blockquote>
+\(\frac{dL}{db} = \sum_i s_i(1-s_i) *  (\frac{1-label_i}{1 - S} - \frac{label_i}{S_i})\)
+</blockquote>
+
+    </div>
+</body>
+</html>
